@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Event Booking Page - Welcome and Choose an Event</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <style type="text/css">
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f5f5; /* Light gray background */
+      color: #333; /* Neutral dark gray text */
+      margin: 20px auto;
+      width: 90%;
+      max-width: 800px;
+      line-height: 1.6;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #ffffff; /* White background for header */
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      color: #4CAF50; /* Soft green for title */
+      font-weight: bold;
+    }
+
+    main {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    main h2 {
+      color: #007BFF; /* Blue subheadings */
+      margin-top: 20px;
+    }
+
+    form {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #f9f9f9; /* Light neutral background for forms */
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    input, select, button {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 100%;
+    }
+
+    input[type="submit"], button {
+      background-color: #007BFF; /* Blue buttons */
+      color: #fff;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover, button:hover {
+      background-color: #0056b3;
+    }
+
+    .btn {
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .btn-dark {
+      background-color: #4CAF50; /* Green for Add New Event */
+      color: #fff;
+    }
+
+    .btn-dark:hover {
+      background-color: #388E3C;
+    }
+
+    .btn-info {
+      background-color: #17A2B8; /* Teal for Edit/Details */
+      color: #fff;
+    }
+
+    .btn-info:hover {
+      background-color: #138496;
+    }
+
+    .no-events {
+      text-align: center;
+      font-style: italic;
+      color: #888;
+      margin-top: 20px;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #666;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Welcome to our Event Booking App</h1>
+</header>
+<main>
+  <h2>Search an event:</h2>
+  <form th:method="GET" th:action="@{/events/events-list}">
+    <label for="search">By Event Name:</label>
+    <input type="text" name="searchName" id="search" placeholder="Search an event">
+    <label for="minRating">By Minimum Event Rating (0.00 - 10.00):</label>
+    <input type="number" name="minRating" id="minRating" min="0" max="10" placeholder="Min Rating">
+    <input type="submit" value="Search">
+  </form>
+
+  <h2>Filter by Location:</h2>
+  <form th:method="GET" th:action="@{/events/events-list/by-location}">
+    <select name="locationId">
+      <option th:each="location : ${locations}" th:value="${location.id}" th:text="${location.name}"></option>
+    </select>
+    <button type="submit">Filter</button>
+  </form>
+
+  <form id="mainForm" th:method="POST" th:action="@{/servlet/events/event-booking}">
+    <h2>Choose an event:</h2>
+    <div th:if="${events != null}">
+      <div th:each="event : ${events}">
+        <input type="radio" th:id="${event.getId()}" name="rad" th:value="${event.name}">
+        <label th:for="${event.getId()}">
+          Name: <th:block th:text="${event.getName()}"></th:block>,
+          Description: <th:block th:text="${event.getDescription()}"></th:block>,
+          Rating: <th:block th:text="${event.getPopularityScore()}"></th:block>,
+          Location: <th:block th:if="${event.location != null}" th:text="${event.location.name}"></th:block>
+        </label>
+        <br>
+        <a th:href="@{'/events/events-list/edit-form/{id}' (id=${event.getId()})}" class="btn btn-info">Edit</a>
+        <a th:href="@{'/events/events-list/event-details/{id}' (id=${event.getId()})}" class="btn btn-info">Details</a>
+      </div>
+    </div>
+    <div class="no-events" th:if="${events == null}">
+      <p>No events available.</p>
+    </div>
+
+    <a href="/events/events-list/add-form" class="btn btn-dark">Add new event</a>
+    <h2>Choose number of tickets:</h2>
+    <input type="number" name="numTickets" min="1" max="10">
+    <input type="submit" value="Book Now">
+  </form>
+</main>
+<footer>
+  &copy; 2024 Event Booking App. All rights reserved.
+</footer>
+</body>
+</html>
